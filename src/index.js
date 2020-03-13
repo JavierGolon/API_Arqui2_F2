@@ -37,6 +37,7 @@ app.get('/', (req, res) => {
   app.use('/Luz',require('./Routes/SensorLuz'));
   app.use('/Peso',require('./Routes/SensorPeso'));
   app.use('/Sonido',require('./Routes/SensorSonido'));
+  app.use('/Robo',require('./Routes/ControlAntirrobo'));
   
   
 

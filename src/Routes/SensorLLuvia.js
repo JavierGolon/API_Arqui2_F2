@@ -3,10 +3,18 @@ const router =  express.Router();
 const index=require('../index');
 const connection = require('../ConexionSQL');
 const {Request } = require("tedious");
-router.get('/',(req,res)=>{
 
-    InsertarLluvia();
-    res.send('hola Lluvia');
+var list ={
+  'datos':[]
+};
+
+router.post('/Post',(req,res)=>{
+  var getfecha=req.body.Fecha
+    console.log(getfecha);
+    ObtenerAgua(getfecha);
+    json = JSON.stringify(list);
+    res.send(json);
+    CleanData();
 });
 
 
@@ -57,6 +65,49 @@ function InsertarLluvia(valor,fecha) {
     connection.execSql(request);
   }
 
+
+  function ObtenerAgua(dia){
+    
+    console.log("Reading rows from the Table...");
+
+    // Read all rows from table
+    const request = new Request(
+      `select valor
+      from lluvia
+      where cast(fecha as date) = '`+dia+`';`,
+      (err, rowCount) => {
+        if (err) {
+          console.error(err.message);
+        } else {
+          console.log(`${rowCount} row(s) returned`);
+        }
+      }
+    );
+  
+    request.on("row", columns => {
+      var jsondata={};
+   
+      columns.forEach(column => {
+        //console.log("%s\t%s", column.metadata.colName, column.value);
+        //list.datos.push({"valor":column.value});
+        jsondata['valor']=column.value;
+        
+      }
+      );
+      list.datos.push(jsondata);
+      
+      
+    });
+  
+    connection.execSql(request);
+  }
+
+
+   function CleanData(){
+    while(list.datos.length>0){
+      list.datos.pop();
+    }
+  }
 
 
 
